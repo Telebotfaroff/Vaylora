@@ -1,103 +1,79 @@
-![vega-high-resolution-logo-transparent](https://github.com/Zenda-Cross/vega-app/assets/143804558/b2eb446f-8e7f-4800-81e1-3320c82f33de)
+# Vaylora
 
-# Vega-App
-Android app for streaming and casting media.
-### Features
-- Stream and Download.
-- Cast support: Google Cast/DLNA with custom remuxer supports embedded audio and sub track change support.
-- WatchList.
-- External player and Downloader support.
-- Sync with desktop app
-- Create custom plugins.
-<br>
+**Entertainment without boundaries.**
 
-[![Discord](https://custom-icon-badges.demolab.com/badge/-Join_Discord-6567a5?style=for-the-badge&logo=discord&logoColor=white)](https://discord.gg/cr42m6maWy)
+Vaylora is a premium, cross-platform media discovery and playback app built with React Native and Expo. This repository is the independent Vaylora application codebase.
 
-___
+## Brand
 
-## Download ![GitHub Downloads (all assets, all releases)](https://img.shields.io/github/downloads/vega-org/vega-app/total?link=https%3A%2F%2Fgithub.com%2Fvega-org%2Fvega-app%2Freleases&label=Github%20Downloads)
-<!-- > <sub>Download Universal version if you are confused about armeabi-v7a or arm64-v8a or follow this guide https://vega.8man.in/guide/.</sub> -->
+- App name: **Vaylora**
+- Android application ID: `com.vaylora.player`
+- Deep-link scheme: `vaylora://`
+- Visual identity: Midnight Black `#090E1B`, Electric Blue `#168BFF`, Ice Blue `#50C8FF`
 
-<a href="https://play.google.com/store/apps/details?id=vega.app">
-  <img src="https://appure.io/badges/playstore/en.svg" width="200" alt="Get it on Google Play">
-</a>
+## Features
 
-[![Download Apk](https://custom-icon-badges.demolab.com/badge/-Download_From_Github-black?style=for-the-badge&logo=download&logoColor=white)](https://github.com/vega-org/vega-app/releases/latest)
+- Stream and download media from configured providers
+- Google Cast and DLNA support
+- Watchlist and local media playback
+- External player and downloader support
+- Desktop synchronization
+- Custom provider/plugin support
+- Android TV support
 
-[![Download Apk](https://custom-icon-badges.demolab.com/badge/-Website-tomato?style=for-the-badge&logo=download&logoColor=white)](https://vega-app.in/#mobile)
+## Development
 
-## Vega for Desktop 
-https://github.com/vega-org/vega-desktop
+### Requirements
 
-## Vega for Web
-https://web.vega-app.in
+- Node.js 18 or newer
+- Android Studio and Android SDK for Android builds
+- Expo CLI through the project dependencies
 
+### Setup
 
-<br>
+```bash
+git clone https://github.com/Telebotfaroff/Vaylora.git
+cd Vaylora
+npm install
+npm run build:sandbox
+```
 
-##
-<!--  ![Screenshots](https://github.com/user-attachments/assets/b86af756-e66e-4ae7-b2af-61b25cfd8d4e) -->
-<!--<img width="2712" height="1220" alt="Screenshot_2026-08-11-20-07-17-817_com vega" src="https://github.com/user-attachments/assets/e7de4085-fcb1-4504-92e3-a4f011adc879" /> -->
-Play any local or remote video
-<img width="2946" height="1324" alt="Untitled design" src="https://github.com/user-attachments/assets/76b6adee-861d-4cc9-88c7-d029d0ab2137" />
+### Run on Android
 
+```bash
+npm run android
+```
 
+### Android TV
 
-___
+```bash
+npm run android:tv
+```
 
-## Stack
-<p align="left">
-     
-[![React-Native](https://custom-icon-badges.demolab.com/badge/-React_Native-287aad?style=for-the-badge&logo=react&logoColor=white)](https://reactnative.dev/)
-[![TypeScript](https://custom-icon-badges.demolab.com/badge/Typescript-3078C6?style=for-the-badge&logo=typescript&logoColor=white)](https://www.typescriptlang.org/)
-[![NativeWind](https://custom-icon-badges.demolab.com/badge/Native_Wind-0CA6E9?style=for-the-badge&logo=tailwind&logoColor=white)](https://www.nativewind.dev/)
-[![React-Navigation](https://custom-icon-badges.demolab.com/badge/React_Navigation-6838d9?style=for-the-badge&logo=menu&logoColor=white)](https://reactnavigation.org/)
-[![Expo-Modules](https://custom-icon-badges.demolab.com/badge/Expo_Modules-black?style=for-the-badge&logo=expo&logoColor=white)](https://docs.expo.dev/modules/overview/)
-[![React-Native-Video](https://custom-icon-badges.demolab.com/badge/React_native_video-38d9c9?style=for-the-badge&logo=video&logoColor=white)](https://thewidlarzgroup.github.io/react-native-video/)
-[![MMKV-Storage](https://custom-icon-badges.demolab.com/badge/MMKV_Storage-yellow?style=for-the-badge&logo=zap&logoColor=white)](https://github.com/mrousavy/react-native-mmkv)
+### Tests and lint
 
+```bash
+npm test
+npm run lint
+```
 
+## EAS builds
 
-</p>
+Vaylora must use its own Expo Application Services project and signing credentials. Do not reuse Vega's EAS project ID, Play Store service account, or signing keys.
 
-## Build and Dev
-0. Set-up React Native environment if you haven't already. [Guide](https://reactnative.dev/docs/set-up-your-environment)
+After configuring the Vaylora EAS project and Android credentials:
 
-1. clone
-     ```bash
-     git clone https://github.com/vega-org/vega-app.git
-     ```
-     ```
-     cd vega-app
-     ```
-2. Install
-     ```
-     npm install
-     ```
-3. Prebuild
-   ```
-    npx expo prebuild -p android --clean
-   ```
-5. Open metro dev server
-Dev
-     ```
-     npm run android
-     ```
-Build apk/aab
-https://reactnative.dev/docs/signed-apk-android
+```bash
+npx eas-cli init
+npx eas-cli build --platform android --profile preview
+```
 
----
-> [!IMPORTANT]
-> Vega App does not host, store, or provide any media content. It is not affiliated with or connected to any external providers or extensions. All content accessed through the app is managed and sourced directly by the user via third-party tools or integrations. Vega App has no control over it.
+Store signing credentials and service-account files outside version control. Configure Play Store submission only after the Vaylora Play Console app and service account are ready.
 
+## Project identity
 
-## Leave a star if this was helpful
+This is an independent rebrand and application repository. The app's provider, playback, download, casting, and Android TV functionality is intended to remain intact while Vaylora-specific identity and release infrastructure are introduced.
 
-<a href="https://www.star-history.com/?repos=vega-org%2Fvega-app&type=date&legend=top-left">
- <picture>
-   <source media="(prefers-color-scheme: dark)" srcset="https://api.star-history.com/chart?repos=vega-org/vega-app&type=date&theme=dark&legend=top-left&sealed_token=ajfKjwdP9VUHI3OOuOW40FrTlJWZRFXQqjUVf51d1HcT6QFCcR2mvv8ykA_FM5u7a9rqhzNtERwdQjth0A63L5tRJ6ImisXf5ktSU4eYU-SB1m3-xp5HOQ" />
-   <source media="(prefers-color-scheme: light)" srcset="https://api.star-history.com/chart?repos=vega-org/vega-app&type=date&legend=top-left&sealed_token=ajfKjwdP9VUHI3OOuOW40FrTlJWZRFXQqjUVf51d1HcT6QFCcR2mvv8ykA_FM5u7a9rqhzNtERwdQjth0A63L5tRJ6ImisXf5ktSU4eYU-SB1m3-xp5HOQ" />
-   <img alt="Star History Chart" src="https://api.star-history.com/chart?repos=vega-org/vega-app&type=date&legend=top-left&sealed_token=ajfKjwdP9VUHI3OOuOW40FrTlJWZRFXQqjUVf51d1HcT6QFCcR2mvv8ykA_FM5u7a9rqhzNtERwdQjth0A63L5tRJ6ImisXf5ktSU4eYU-SB1m3-xp5HOQ" />
- </picture>
-</a>
+## License and notices
 
+See [LICENSE](./LICENSE) and [NOTICE](./NOTICE) for applicable license and attribution information.
