@@ -22,14 +22,14 @@ module.exports = () => {
   const IS_TV = process.env.EXPO_TV === '1' || process.env.APP_VARIANT === 'tv';
   const HAS_FIREBASE =
     !IS_PLAYSTORE && (hasAndroidGoogleServices || hasIosGooglePlist);
-  const PACKAGE_NAME = IS_PLAYSTORE ? 'vega.app' : 'com.vega';
-  const APP_SCHEME = IS_PLAYSTORE ? 'vegaapp' : 'com.vega';
+  const PACKAGE_NAME = 'com.vaylora.player';
+  const APP_SCHEME = 'vaylora';
   const plugins = [
     './plugins/with-custom-native-modules.js',
       [
         'expo-camera',
         {
-          cameraPermission: 'Allow Vega to scan receiver QR codes.',
+          cameraPermission: 'Allow Vaylora to scan receiver QR codes.',
           recordAudioAndroid: false,
         },
       ],
@@ -144,14 +144,14 @@ module.exports = () => {
   ];
   return {
     expo: {
-      name: 'Vega',
-      scheme: [APP_SCHEME, 'vega-cast'],
-      displayName: 'Vega',
+      name: 'Vaylora',
+      scheme: [APP_SCHEME, 'vaylora-cast'],
+      displayName: 'Vaylora',
       jsEngine: 'hermes',
       newArchEnabled: true,
       autolinking: {exclude: ['expo-splash-screen']},
       plugins,
-      slug: 'vega',
+      slug: 'vaylora',
       version: '5.3.2',
       userInterfaceStyle: 'dark',
       experiments: {
@@ -197,7 +197,7 @@ module.exports = () => {
         allowBackup: true,
         adaptiveIcon: {
           foregroundImage: './assets/adaptive_icon.png',
-          backgroundColor: '#000000',
+          backgroundColor: '#090E1B',
         },
         launchMode: 'singleTask',
         supportsPictureInPicture: true,
@@ -217,9 +217,7 @@ module.exports = () => {
         vegaCastIceServers: JSON.parse(
           process.env.VEGA_CAST_ICE_SERVERS || '[]',
         ),
-        eas: {
-          projectId: '40d98354-d3c8-4616-ab2e-70d9c297091f',
-        },
+        // Link this repository to its own EAS project with `eas init`.
         hasFirebase: HAS_FIREBASE,
         isPlayStore: IS_PLAYSTORE,
         isTV: IS_TV,
