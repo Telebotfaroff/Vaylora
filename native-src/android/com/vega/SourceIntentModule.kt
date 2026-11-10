@@ -27,7 +27,8 @@ class SourceIntentModule(reactContext: ReactApplicationContext) :
     ReactContextBaseJavaModule(reactContext), ActivityEventListener {
 
     companion object {
-        const val ACTION_ADD_SOURCE = "com.vaylora.intent.action.ADD_SOURCE"\n        private const val LEGACY_ACTION_ADD_SOURCE = "vega.intent.action.ADD_SOURCE"
+        const val ACTION_ADD_SOURCE = "com.vaylora.intent.action.ADD_SOURCE"
+        private const val LEGACY_ACTION_ADD_SOURCE = "vega.intent.action.ADD_SOURCE"
         const val EXTRA_URL = "url"
         const val EXTRA_TOKEN = "token"
         private const val MAX_URL_LENGTH = 2048
