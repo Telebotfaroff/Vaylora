@@ -31,19 +31,15 @@ on:
 permissions:
   contents: read
 
+concurrency:
+  group: vaylora-apk-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   build:
-    name: Build ${{ matrix.variant }} APK
-    if: ${{ github.event_name == 'push' || inputs.variant == 'both' || inputs.variant == matrix.variant }}
+    name: Build Vaylora APKs
     runs-on: ubuntu-latest
-    timeout-minutes: 120
-    concurrency:
-      group: vaylora-apk-${{ github.ref }}-${{ matrix.variant }}
-      cancel-in-progress: true
-    strategy:
-      fail-fast: false
-      matrix:
-        variant: [mobile, tv]
+    timeout-minutes: 180
     env:
       CI: '1'
       EXPO_NO_TELEMETRY: '1'
@@ -94,51 +90,66 @@ jobs:
       - name: Build provider sandbox runtime
         run: npm run build:sandbox
 
-      - name: Generate Android project
+      - name: Generate mobile Android project
+        if: ${{ github.event_name == 'push' || inputs.variant == 'mobile' || inputs.variant == 'both' }}
         env:
-          EXPO_TV: ${{ matrix.variant == 'tv' && '1' || '0' }}
-          APP_VARIANT: ${{ matrix.variant == 'tv' && 'tv' || 'standalone' }}
+          EXPO_TV: '0'
+          APP_VARIANT: standalone
         run: npx expo prebuild --platform android --clean --no-install
 
-      - name: Build debug APK
+      - name: Build mobile debug APK
+        if: ${{ github.event_name == 'push' || inputs.variant == 'mobile' || inputs.variant == 'both' }}
         shell: bash
         run: |
           set -euo pipefail
           chmod +x android/gradlew
           cd android
-          ./gradlew :app:assembleDebug \
-            --build-cache \
-            --no-daemon \
-            --max-workers=2 \
-            --console=plain \
-            --stacktrace \
+          ./gradlew :app:assembleDebug --build-cache --no-daemon --max-workers=2 --console=plain --stacktrace \
             '-Dorg.gradle.jvmargs=-Xmx4096m -XX:MaxMetaspaceSize=768m -XX:+UseSerialGC' \
             -Pkotlin.compiler.execution.strategy=in-process
+          cd ..
+          mkdir -p dist/mobile
+          find android/app/build/outputs/apk/debug -type f -name '*.apk' ! -name '*androidTest*' -exec cp '{}' dist/mobile/ \;
+          test -n "$(find dist/mobile -type f -name '*.apk' -print -quit)"
+          ls -lh dist/mobile
 
-      - name: Verify and list APK outputs
-        id: apk
+      - name: Upload mobile APK
+        if: ${{ success() && (github.event_name == 'push' || inputs.variant == 'mobile' || inputs.variant == 'both') }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: Vaylora-mobile-APK-${{ github.run_number }}
+          path: dist/mobile/*.apk
+          if-no-files-found: error
+          retention-days: 14
+
+      - name: Generate Android TV project
+        if: ${{ github.event_name == 'push' || inputs.variant == 'tv' || inputs.variant == 'both' }}
+        env:
+          EXPO_TV: '1'
+          APP_VARIANT: tv
+        run: npx expo prebuild --platform android --clean --no-install
+
+      - name: Build Android TV debug APK
+        if: ${{ github.event_name == 'push' || inputs.variant == 'tv' || inputs.variant == 'both' }}
         shell: bash
         run: |
           set -euo pipefail
-          APK_DIR="android/app/build/outputs/apk/debug"
-          mkdir -p dist
-          mapfile -t APK_FILES < <(find "$APK_DIR" -type f -name '*.apk' ! -name '*androidTest*' | sort)
-          if [ "${#APK_FILES[@]}" -eq 0 ]; then
-            echo "No APK was generated in $APK_DIR" >&2
-            exit 1
-          fi
-          for apk in "${APK_FILES[@]}"; do
-            name="$(basename "$apk")"
-            cp "$apk" "dist/Vaylora-${{ matrix.variant }}-${name}"
-          done
-          echo "Generated APKs:"
-          ls -lh dist
-          echo "apk_count=${#APK_FILES[@]}" >> "$GITHUB_OUTPUT"
+          chmod +x android/gradlew
+          cd android
+          ./gradlew :app:assembleDebug --build-cache --no-daemon --max-workers=2 --console=plain --stacktrace \
+            '-Dorg.gradle.jvmargs=-Xmx4096m -XX:MaxMetaspaceSize=768m -XX:+UseSerialGC' \
+            -Pkotlin.compiler.execution.strategy=in-process
+          cd ..
+          mkdir -p dist/tv
+          find android/app/build/outputs/apk/debug -type f -name '*.apk' ! -name '*androidTest*' -exec cp '{}' dist/tv/ \;
+          test -n "$(find dist/tv -type f -name '*.apk' -print -quit)"
+          ls -lh dist/tv
 
-      - name: Upload APK artifact
+      - name: Upload Android TV APK
+        if: ${{ success() && (github.event_name == 'push' || inputs.variant == 'tv' || inputs.variant == 'both') }}
         uses: actions/upload-artifact@v4
         with:
-          name: Vaylora-${{ matrix.variant }}-APK-${{ github.run_number }}
-          path: dist/*.apk
+          name: Vaylora-Android-TV-APK-${{ github.run_number }}
+          path: dist/tv/*.apk
           if-no-files-found: error
           retention-days: 14
