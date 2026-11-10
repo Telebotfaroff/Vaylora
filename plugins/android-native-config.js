@@ -57,7 +57,8 @@ const withAndroidNativeConfig = config => {
             ],
           });
         }
-      }    }
+      }
+    }
 
     return manifestConfig;
   });
