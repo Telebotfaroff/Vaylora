@@ -31,16 +31,15 @@ on:
 permissions:
   contents: read
 
-concurrency:
-  group: vaylora-apk-${{ github.ref }}-${{ matrix.variant }}
-  cancel-in-progress: true
-
 jobs:
   build:
     name: Build ${{ matrix.variant }} APK
     if: ${{ github.event_name == 'push' || inputs.variant == 'both' || inputs.variant == matrix.variant }}
     runs-on: ubuntu-latest
     timeout-minutes: 120
+    concurrency:
+      group: vaylora-apk-${{ github.ref }}-${{ matrix.variant }}
+      cancel-in-progress: true
     strategy:
       fail-fast: false
       matrix:
