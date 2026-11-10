@@ -17,9 +17,9 @@ import com.facebook.react.modules.core.DeviceEventManagerModule
  * optional "token" extra (GitHub token for a private repo).
  *
  * From a web page (Chrome intent URI):
- *   intent:#Intent;action=vega.intent.action.ADD_SOURCE;S.url=https%3A%2F%2Fgithub.com%2Fauthor%2Frepo;end
+ *   intent:#Intent;action=com.vaylora.intent.action.ADD_SOURCE;S.url=https%3A%2F%2Fgithub.com%2Fauthor%2Frepo;end
  * From adb:
- *   adb shell am start -a vega.intent.action.ADD_SOURCE --es url https://github.com/author/repo
+ *   adb shell am start -a com.vaylora.intent.action.ADD_SOURCE --es url https://github.com/author/repo
  * Private repo:
  *   ... --es url https://github.com/author/repo --es token github_pat_xxx
  */
@@ -27,7 +27,7 @@ class SourceIntentModule(reactContext: ReactApplicationContext) :
     ReactContextBaseJavaModule(reactContext), ActivityEventListener {
 
     companion object {
-        const val ACTION_ADD_SOURCE = "vega.intent.action.ADD_SOURCE"
+        const val ACTION_ADD_SOURCE = "com.vaylora.intent.action.ADD_SOURCE"\n        private const val LEGACY_ACTION_ADD_SOURCE = "vega.intent.action.ADD_SOURCE"
         const val EXTRA_URL = "url"
         const val EXTRA_TOKEN = "token"
         private const val MAX_URL_LENGTH = 2048
@@ -75,7 +75,7 @@ class SourceIntentModule(reactContext: ReactApplicationContext) :
     ) {}
 
     private fun consume(intent: Intent): WritableMap? {
-        if (intent.action != ACTION_ADD_SOURCE) return null
+        if (intent.action != ACTION_ADD_SOURCE && intent.action != LEGACY_ACTION_ADD_SOURCE) return null
         val url = intent.getStringExtra(EXTRA_URL)?.trim()
         val token = intent.getStringExtra(EXTRA_TOKEN)?.trim()
         // Clear so a JS reload or activity recreation does not add it again.
