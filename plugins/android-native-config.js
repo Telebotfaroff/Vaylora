@@ -42,21 +42,22 @@ const withAndroidNativeConfig = config => {
     );
     if (mainActivity) {
       mainActivity['intent-filter'] = mainActivity['intent-filter'] || [];
-      const hasAddSourceFilter = mainActivity['intent-filter'].some(filter =>
-        filter.action?.some(
-          action => action.$['android:name'] === ADD_SOURCE_ACTION,
-        ),
-      );
-      if (!hasAddSourceFilter) {
-        mainActivity['intent-filter'].push({
-          action: [{$: {'android:name': ADD_SOURCE_ACTION}}],
-          category: [
-            {$: {'android:name': 'android.intent.category.DEFAULT'}},
-            {$: {'android:name': 'android.intent.category.BROWSABLE'}},
-          ],
-        });
-      }
-    }
+      for (const actionName of ADD_SOURCE_ACTIONS) {
+        const hasFilter = mainActivity['intent-filter'].some(filter =>
+          filter.action?.some(
+            action => action.$?.['android:name'] === actionName,
+          ),
+        );
+        if (!hasFilter) {
+          mainActivity['intent-filter'].push({
+            action: [{$: {'android:name': actionName}}],
+            category: [
+              {$: {'android:name': 'android.intent.category.DEFAULT'}},
+              {$: {'android:name': 'android.intent.category.BROWSABLE'}},
+            ],
+          });
+        }
+      }    }
 
     return manifestConfig;
   });
