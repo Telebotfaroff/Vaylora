@@ -1,8 +1,9 @@
 import {DeviceEventEmitter, NativeModules, Platform} from 'react-native';
 
-// Native side: native-src/android/com/vega/SourceIntentModule.kt. The intent
-// action is vega.intent.action.ADD_SOURCE with the source in the "url" extra
-// and an optional GitHub token for a private repo in the "token" extra.
+// Native side: SourceIntentModule is registered by RemoteDeliveryPackage.
+// The primary action is com.vaylora.intent.action.ADD_SOURCE; the legacy
+// vega.intent.action.ADD_SOURCE action remains supported. Both pass the source
+// in the "url" extra and an optional private-repository token in "token".
 const {VegaSourceIntent} = NativeModules;
 
 export interface SourceIntentPayload {
