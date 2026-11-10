@@ -1,0 +1,145 @@
+name: Vaylora APK Builder
+
+on:
+  workflow_dispatch:
+    inputs:
+      variant:
+        description: Android app variant to build
+        required: true
+        type: choice
+        default: mobile
+        options:
+          - mobile
+          - tv
+          - both
+  push:
+    branches:
+      - rebrand/vaylora-identity
+    paths:
+      - 'src/**'
+      - 'assets/**'
+      - 'native-src/**'
+      - 'plugins/**'
+      - 'scripts/**'
+      - 'app.config.js'
+      - 'package.json'
+      - 'package-lock.json'
+      - 'babel.config.js'
+      - 'metro.config.js'
+      - '.github/workflows/vaylora-apk.yml'
+
+permissions:
+  contents: read
+
+concurrency:
+  group: vaylora-apk-${{ github.ref }}-${{ matrix.variant }}
+  cancel-in-progress: true
+
+jobs:
+  build:
+    name: Build ${{ matrix.variant }} APK
+    if: ${{ github.event_name == 'push' || inputs.variant == 'both' || inputs.variant == matrix.variant }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+    strategy:
+      fail-fast: false
+      matrix:
+        variant: [mobile, tv]
+    env:
+      CI: '1'
+      EXPO_NO_TELEMETRY: '1'
+
+    steps:
+      - name: Checkout source
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+
+      - name: Set up Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - name: Set up Android SDK
+        uses: android-actions/setup-android@v3
+        with:
+          packages: platform-tools
+          log-accepted-android-sdk-licenses: false
+
+      - name: Set up Gradle
+        uses: gradle/actions/setup-gradle@v4
+
+      - name: Install Android CMake
+        shell: bash
+        run: |
+          set -euo pipefail
+          for attempt in 1 2 3; do
+            if sdkmanager --install 'cmake;3.22.1' && "$ANDROID_HOME/cmake/3.22.1/bin/cmake" --version; then
+              exit 0
+            fi
+            if [ "$attempt" -eq 3 ]; then
+              echo "CMake installation failed after three attempts." >&2
+              exit 1
+            fi
+            sleep 10
+          done
+
+      - name: Install JavaScript dependencies
+        run: npm ci
+
+      - name: Build provider sandbox runtime
+        run: npm run build:sandbox
+
+      - name: Generate Android project
+        env:
+          EXPO_TV: ${{ matrix.variant == 'tv' && '1' || '0' }}
+          APP_VARIANT: ${{ matrix.variant == 'tv' && 'tv' || 'standalone' }}
+        run: npx expo prebuild --platform android --clean --no-install
+
+      - name: Build debug APK
+        shell: bash
+        run: |
+          set -euo pipefail
+          chmod +x android/gradlew
+          cd android
+          ./gradlew :app:assembleDebug \
+            --build-cache \
+            --no-daemon \
+            --max-workers=2 \
+            --console=plain \
+            --stacktrace \
+            '-Dorg.gradle.jvmargs=-Xmx4096m -XX:MaxMetaspaceSize=768m -XX:+UseSerialGC' \
+            -Pkotlin.compiler.execution.strategy=in-process
+
+      - name: Verify and list APK outputs
+        id: apk
+        shell: bash
+        run: |
+          set -euo pipefail
+          APK_DIR="android/app/build/outputs/apk/debug"
+          mkdir -p dist
+          mapfile -t APK_FILES < <(find "$APK_DIR" -type f -name '*.apk' ! -name '*androidTest*' | sort)
+          if [ "${#APK_FILES[@]}" -eq 0 ]; then
+            echo "No APK was generated in $APK_DIR" >&2
+            exit 1
+          fi
+          for apk in "${APK_FILES[@]}"; do
+            name="$(basename "$apk")"
+            cp "$apk" "dist/Vaylora-${{ matrix.variant }}-${name}"
+          done
+          echo "Generated APKs:"
+          ls -lh dist
+          echo "apk_count=${#APK_FILES[@]}" >> "$GITHUB_OUTPUT"
+
+      - name: Upload APK artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: Vaylora-${{ matrix.variant }}-APK-${{ github.run_number }}
+          path: dist/*.apk
+          if-no-files-found: error
+          retention-days: 14
