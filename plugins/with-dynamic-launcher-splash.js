@@ -132,7 +132,7 @@ const withLauncherStyles = config =>
 
 const bootThemeMethod = `  private fun getBootTheme(): Int {
     val launchedAlias = intent?.component?.className?.substringAfterLast('.')
-    val selectedIcon = getSharedPreferences("vega_launcher", MODE_PRIVATE)
+    val selectedIcon = getSharedPreferences("vaylora_launcher", MODE_PRIVATE)
       .getString("icon", null) ?: when (launchedAlias) {
       "LauncherWhite" -> "white"
       "LauncherTomato" -> "tomato"
@@ -268,7 +268,7 @@ const withLauncherResources = config =>
       copySplashResources(projectRoot, resRoot);
       patchGeneratedBootSplashFiles(
         projectRoot,
-        modConfig.android?.package || 'com.vega',
+        modConfig.android?.package || 'com.vaylora.player',
       );
       return modConfig;
     },
