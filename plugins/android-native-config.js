@@ -3,7 +3,10 @@ const {
   withAndroidStyles,
 } = require('expo/config-plugins');
 
-const ADD_SOURCE_ACTIONS = [\n  'com.vaylora.intent.action.ADD_SOURCE',\n  'vega.intent.action.ADD_SOURCE', // Backward compatibility with existing source links.\n];
+const ADD_SOURCE_ACTIONS = [
+  'com.vaylora.intent.action.ADD_SOURCE',
+  'vega.intent.action.ADD_SOURCE', // Backward compatibility with existing source links.
+];
 
 const withAndroidNativeConfig = config => {
   config = withAndroidManifest(config, manifestConfig => {
